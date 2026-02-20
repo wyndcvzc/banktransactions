@@ -13,21 +13,27 @@ function parse() {
     const participant2 = details.children[0].children[0].children[1]?.textContent;
     const person = participant1.toLowerCase() === 'you' ? participant2 : participant1;
 
+    const description = details.children[3].children[0]?.textContent;
+
     const dateElement = details.children[2].children[0].children[0];
     const dateString = dateElement.textContent;
+    console.log(dateString);
     let date;
     if (dateString.match(/[0-9]+d/)) {
       date = new Date();
       date.setDate(date.getDate() - dateString.match(/\d+/)[0]);
     } else {
       date = new Date(Date.parse(dateString));
-      date.setYear(new Date().getFullYear());
+      if (!dateString.includes(',')) {
+        date.setYear(new Date().getFullYear());
+      }
     }
+    console.log(date);
 
     return {
       date: date.toISOString().substring(0, 10),
       amount: amount,
-      description: `Venmo - ${person}`,
+      description: `Venmo - ${person} - ${description}`,
     };
   });
 
