@@ -59,6 +59,7 @@ function setResults(results) {
       results.headers.forEach((header) => {
         const dataElement = document.createElement('td');
         dataElement.appendChild(document.createTextNode(row[header]));
+        if (header === 'Description') dataElement.title = row[header];
         rowElement.appendChild(dataElement);
       });
       const dataElement = document.createElement('td');
