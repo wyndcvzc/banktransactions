@@ -1,10 +1,10 @@
 function parse() {
   // these are the only columns we care about
   const COLUMNS = [
-    'date-cell',
-    'amount-cell',
-    'type-cell',
-    'desc-cell',
+    'Date',
+    'Amount',
+    'Type',
+    'Description',
   ];
 
   // these are the rows in the transaction table
@@ -17,26 +17,32 @@ function parse() {
     const columns = Array.from(row.getElementsByTagName('td'));
     const data = {};
     columns.forEach((column) => {
-      const header = COLUMNS.find((c) => column.classList.contains(c));
+      const header = ['date-cell', 'amount-cell', 'desc-cell', 'type-cell'].find((c) => column.classList.contains(c));
       if (header) {
         var text = column.innerText;
-        if (header == 'date-cell') {
+        var headerLabel = header;
+        if (header === 'date-cell') {
+          headerLabel = 'Date';
           try {
             text = new Date(text).toISOString().substring(0,10);
           } catch (e) {
           }
-        } else if (header == 'desc-cell') {
+        } else if (header === 'desc-cell') {
+          headerLabel = 'Description';
           text = text.replace('View/Edit', '');
           text = text.trim();
-        } else if (header == 'amount-cell') {
+        } else if (header === 'amount-cell') {
+          headerLabel = 'Amount';
           if (text.startsWith('-')) {
             text = text.substring(1);
           } else {
             text = '-' + text;
           }
           text = text.replace(',', '');
+        } else if (header === 'type-cell') {
+          headerLabel = 'Type';
         }
-        data[header] = text;
+        data[headerLabel] = text;
       }
     });
     return data;
