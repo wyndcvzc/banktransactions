@@ -31,14 +31,14 @@ function parse() {
     console.log(date);
 
     return {
-      date: date.toISOString().substring(0, 10),
-      amount: amount,
-      description: `Venmo - ${person} - ${description}`,
+      'Date': date.toISOString().substring(0, 10),
+      'Amount': amount,
+      'Description': `Venmo - ${person} - ${description}`,
     };
   });
 
   return {
-    headers: ['date', 'amount', 'description'],
+    headers: ['Date', 'Amount', 'Category', 'Description'],
     rows: parsedTransactions,
   };
 }
