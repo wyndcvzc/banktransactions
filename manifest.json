@@ -8,7 +8,7 @@
     "default_popup": "popup.html"
   },
   "manifest_version": 3,
-  "version": "0.1",
+  "version": "0.2",
   "description": "Extracts bank transactions",
   "permissions": ["activeTab", "scripting", "tabs"]
 }
