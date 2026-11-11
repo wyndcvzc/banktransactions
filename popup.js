@@ -20,64 +20,184 @@ function notFound(url, options) {
   }
 }
 
+// message: string
+function showError(message) {
+  const notFound = document.getElementById('notfound');
+  if (notFound) {
+    notFound.style.display = 'block';
+    notFound.innerHTML = `Error: ${message}`;
+  }
+}
+
 // results: {
 //   headers: [string],
 //   rows: [Row],
+//   currency?: string,
+//   balance?: { items: [BalanceItem] },
+//   transactions?: { headers, rows, currency },
 // }
 // each Row should contain keys that match the list of headers
 function setResults(results) {
   const resultsElement = document.getElementById('results');
-  if (resultsElement) {
-    resultsElement.style.display = 'block';
-
-    const button = document.createElement('button');
-    button.appendChild(document.createTextNode('Copy as CSV'));
-    button.addEventListener('click', () => {
-      var csv = '';
-      results.rows.forEach((row) => {
-        csv += results.headers.map((header) => row[header]).join(',');
-        csv += '\n';
-      });
-      navigator.clipboard.writeText(csv);
-    });
-    resultsElement.appendChild(button);
-
-    const table = document.createElement('table');
-    const tableHeaders = document.createElement('tr');
-    results.headers.forEach((header) => {
-      const headerElement = document.createElement('th');
-      headerElement.appendChild(document.createTextNode(header));
-      tableHeaders.appendChild(headerElement);
-    });
-    const headerElement = document.createElement('th');
-    headerElement.appendChild(document.createTextNode('Delete Row'));
-    tableHeaders.appendChild(headerElement);
-    table.appendChild(tableHeaders);
-
-    results.rows.forEach((row) => {
-      const rowElement = document.createElement('tr');
-      results.headers.forEach((header) => {
-        const dataElement = document.createElement('td');
-        dataElement.appendChild(document.createTextNode(row[header]));
-        if (header === 'Description') dataElement.title = row[header];
-        rowElement.appendChild(dataElement);
-      });
-      const dataElement = document.createElement('td');
-      const deleteButton = document.createElement('button');
-      const deleteButtonText = document.createElement('span');
-      deleteButtonText.className = 'material-icons';
-      deleteButtonText.appendChild(document.createTextNode('delete'));
-      deleteButton.appendChild(deleteButtonText);
-      deleteButton.addEventListener('click', () => {
-        rowElement.remove();
-        results.rows = results.rows.filter((originalRow) => row != originalRow);
-      });
-      dataElement.appendChild(deleteButton);
-      rowElement.appendChild(dataElement);
-      table.appendChild(rowElement);
-    });
-    resultsElement.appendChild(table);
+  if (!resultsElement) {
+    return;
   }
+  resultsElement.style.display = 'block';
+  resultsElement.innerHTML = '';
+
+  if (!results || !results.rows) {
+    showError('没有抓到数据，请确认已登录并停留在交易明细页面。');
+    return;
+  }
+
+  if (results.rows.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'empty';
+    empty.appendChild(document.createTextNode('没有找到交易记录。余额页的折合金额已直接标注在余额旁边。'));
+    resultsElement.appendChild(empty);
+    return;
+  }
+
+  renderTransactions(resultsElement, results);
+}
+
+// 把交易按 Amount 正负分成支出 / 收入两组渲染。
+function renderTransactions(container, results) {
+  // Split rows into positive/negative groups by the sign of Amount.
+  // Convention (see README): positive = charge/payment (支出), negative = refund/income (收入).
+  const positive = [];
+  const negative = [];
+  results.rows.forEach((row) => {
+    const amount = parseAmount(row['Amount']);
+    if (Number.isNaN(amount)) {
+      return;
+    }
+    if (amount >= 0) {
+      positive.push(row);
+    } else {
+      negative.push(row);
+    }
+  });
+
+  container.appendChild(createCopyButton(results));
+  container.appendChild(createGroup('支出 · Expense（正数 / Positive）', positive, results, 'positive'));
+  container.appendChild(createGroup('收入 · Income（负数 / Negative）', negative, results, 'negative'));
+}
+
+// Parse an Amount cell into a number, tolerating $, commas and signs.
+function parseAmount(value) {
+  if (value === undefined || value === null) {
+    return NaN;
+  }
+  return parseFloat(String(value).replace(/[$,]/g, '').trim());
+}
+
+function createCopyButton(results) {
+  const button = document.createElement('button');
+  button.appendChild(document.createTextNode('Copy as CSV'));
+  button.addEventListener('click', () => {
+    // Escape a cell for CSV: wrap in quotes if it contains comma/quote/newline.
+    const escapeCell = (value) => {
+      const text = value === undefined || value === null ? '' : String(value);
+      if (/[",\n\r]/.test(text)) {
+        return '"' + text.replace(/"/g, '""') + '"';
+      }
+      return text;
+    };
+    let csv = results.headers.map(escapeCell).join(',') + '\n';
+    results.rows.forEach((row) => {
+      csv += results.headers.map((header) => escapeCell(row[header])).join(',');
+      csv += '\n';
+    });
+    // Prepend a UTF-8 BOM so Excel opens Chinese characters correctly.
+    navigator.clipboard.writeText('\uFEFF' + csv);
+  });
+  return button;
+}
+
+// title: string
+// rows: [Row]
+// results: { headers: [string], rows: [Row] }
+// className: 'positive' | 'negative'
+function createGroup(title, rows, results, className) {
+  const section = document.createElement('div');
+  section.className = `group ${className}`;
+
+  const heading = document.createElement('h3');
+  heading.appendChild(document.createTextNode(`${title}（${rows.length} 笔）`));
+  section.appendChild(heading);
+
+  const total = rows.reduce((sum, row) => {
+    const amount = parseAmount(row['Amount']);
+    return sum + (Number.isNaN(amount) ? 0 : amount);
+  }, 0);
+
+  const currency = results.currency || '$';
+  const totalElement = document.createElement('div');
+  totalElement.className = 'total';
+  totalElement.appendChild(document.createTextNode(`合计：${formatAmount(total, currency)}`));
+  section.appendChild(totalElement);
+
+  if (rows.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'empty';
+    empty.appendChild(document.createTextNode('暂无记录'));
+    section.appendChild(empty);
+  } else {
+    section.appendChild(createTable(rows, results));
+  }
+
+  return section;
+}
+
+function formatAmount(value, currency = '$') {
+  const sign = value < 0 ? '-' : '';
+  return `${sign}${currency}${Math.abs(value).toFixed(2)}`;
+}
+
+// rows: [Row]
+// results: { headers: [string], rows: [Row] }
+function createTable(rows, results) {
+  const table = document.createElement('table');
+  const tableHeaders = document.createElement('tr');
+  results.headers.forEach((header) => {
+    const headerElement = document.createElement('th');
+    headerElement.appendChild(document.createTextNode(header));
+    tableHeaders.appendChild(headerElement);
+  });
+  const deleteHeader = document.createElement('th');
+  deleteHeader.appendChild(document.createTextNode('Delete Row'));
+  tableHeaders.appendChild(deleteHeader);
+  table.appendChild(tableHeaders);
+
+  rows.forEach((row) => {
+    const rowElement = document.createElement('tr');
+    results.headers.forEach((header) => {
+      const dataElement = document.createElement('td');
+      dataElement.appendChild(document.createTextNode(row[header]));
+      if (header === 'Description') {
+        dataElement.title = row[header];
+      }
+      rowElement.appendChild(dataElement);
+    });
+
+    const deleteCell = document.createElement('td');
+    const deleteButton = document.createElement('button');
+    const deleteButtonText = document.createElement('span');
+    deleteButtonText.className = 'material-icons';
+    deleteButtonText.appendChild(document.createTextNode('delete'));
+    deleteButton.appendChild(deleteButtonText);
+    deleteButton.addEventListener('click', () => {
+      results.rows = results.rows.filter((originalRow) => row !== originalRow);
+      setResults(results);
+    });
+    deleteCell.appendChild(deleteButton);
+    rowElement.appendChild(deleteCell);
+
+    table.appendChild(rowElement);
+  });
+
+  return table;
 }
 
 function executeScript(file, tab) {
@@ -88,27 +208,43 @@ function executeScript(file, tab) {
   }).then((results) => {
     setLoading(false);
     setResults(results[0].result);
+  }).catch((error) => {
+    setLoading(false);
+    showError(error.message);
   });
 }
 
-setLoading(false);
+function init() {
+  setLoading(false);
 
-chrome.tabs.query(
-  { active: true },
-  (tabs) => {
-    const tab = tabs[0];
-    const url = new URL(tab.url);
+  chrome.tabs.query(
+    { active: true, currentWindow: true },
+    (tabs) => {
+      const tab = tabs[0];
+      if (!tab || !tab.url) {
+        showError('No active tab found.');
+        return;
+      }
+      let url;
+      try {
+        url = new URL(tab.url);
+      } catch (error) {
+        showError('无法识别的页面地址。');
+        return;
+      }
 
-    if (url.hostname.endsWith('chase.com')) {
-      executeScript('chase.js', tab);
-    } else if (url.hostname.endsWith('bankofamerica.com')) {
-      executeScript('bofa.js', tab);
-    } else if (url.hostname.endsWith('venmo.com')) {
-      executeScript('venmo.js', tab);
-    } else if (url.hostname.endsWith('citi.com')) {
-      executeScript('citi.js', tab);
-    } else {
-      notFound(url.hostname, ['chase.com', 'bankofamerica.com', 'venmo.com', 'citi.com']);
-    }
-  },
-);
+      if (url.hostname.endsWith('zhihu.com')) {
+        executeScript('zhihu.js', tab);
+      } else {
+        notFound(url.hostname, ['zhihu.com']);
+      }
+    },
+  );
+}
+
+// popup.js 在 <head> 里加载，等 DOM 就绪再操作元素。
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}

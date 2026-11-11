@@ -1,14 +1,32 @@
 {
-  "name": "Bank Transactions",
-  "author": "thinkingalaud@gmail.com",
+  "name": "知乎账单助手",
+  "author": "涛依旧 (taoyijiu.xin)",
   "icons": {
-    "128": "bank.png"
+    "16": "bill-16.png",
+    "48": "bill-48.png",
+    "128": "bill-128.png"
   },
   "action": {
-    "default_popup": "popup.html"
+    "default_title": "打开知乎账单助手"
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "background": {
+    "service_worker": "background.js"
   },
   "manifest_version": 3,
-  "version": "0.2",
-  "description": "Extracts bank transactions",
-  "permissions": ["activeTab", "scripting", "tabs"]
+  "version": "1.0.0",
+  "description": "知乎盐粒记账：余额页直接显示折合人民币（盐粒/知乎币/直播盐币），交易明细一键导出 CSV",
+  "permissions": ["activeTab", "scripting", "tabs", "sidePanel"],
+  "host_permissions": [
+    "https://*.zhihu.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://*.zhihu.com/*"],
+      "js": ["zhihu-inline.js"],
+      "run_at": "document_idle"
+    }
+  ]
 }

@@ -1,12 +1,35 @@
-# banktransactions
-Chrome extension to scrape bank transactions
+# 知乎账单助手
 
-I like to merge all my transactions into a single spreadsheet in a format similar to credit card transactions (positive means a charge/payment, negative means a refund/income, etc)
+知乎盐粒记账浏览器扩展（Chrome / Edge，Manifest V3）。
 
-I didn't want to trust anyone else with reading my bank transactions, so I wrote this tool for myself. I don't know why you would want to use this if you are not me. I'm a stranger that can read your bank transactions!
+## 功能
 
-Currently supports:
-* Chase
-* Bank of America
-* Venmo
+- **余额换算**：在知乎「我的余额」页面，直接在 知乎币 / 盐粒 / 直播盐币 的数字旁标注折合人民币
+  - 默认汇率：知乎币 1:1、盐粒 100:1（官方提现比例）、直播盐币 20:1（提现口径估算）
+  - 点击标注可修改汇率，保存在本地
+- **交易导出**：在盐粒明细页一键提取交易记录，按支出 / 收入分组显示合计，导出 CSV（UTF-8 BOM，Excel 直接打开不乱码）
 
+## 安装（开发者模式）
+
+1. 下载本仓库，解压
+2. 打开 `chrome://extensions`，右上角开启「开发者模式」
+3. 点「加载已解压的扩展程序」，选择本目录
+4. 打开知乎余额页 / 盐粒明细页，点工具栏图标或直接查看页面标注
+
+## 权限说明
+
+- 仅访问 `zhihu.com`：用于读取余额与盐粒明细页面内容
+- 所有计算与数据只在你本地浏览器内完成，**不上传任何数据**
+
+## 免责声明
+
+- 本工具只读取页面展示的内容，不代替任何账号操作
+- 知乎页面结构如发生变化，可能导致功能暂时失效，更新后恢复
+- 直播盐币汇率按公开资料估算，以知乎官方实际结算为准
+
+## 致谢与许可
+
+基于 [thinkingalaud/banktransactions](https://github.com/thinkingalaud/banktransactions) (MIT) 二次开发，
+原交易解析框架来自该项目；知乎余额换算、页面内标注为本项目新增。
+
+MIT License，完整许可见 [LICENSE](LICENSE)。

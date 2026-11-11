@@ -37,3 +37,63 @@ tr:last-child td {
 button {
   margin-bottom: 10px;
 }
+
+.group {
+  margin-top: 16px;
+}
+
+.group h3 {
+  margin: 0 0 6px;
+  font-size: 14px;
+}
+
+.group.positive h3,
+.group.positive .total {
+  color: #c62828;
+}
+
+.group.negative h3,
+.group.negative .total {
+  color: #2e7d32;
+}
+
+.total {
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.empty {
+  padding: 8px 0;
+  color: #888;
+}
+
+#support {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid #ddd;
+  text-align: center;
+}
+
+.support-title {
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 6px;
+}
+
+.support-links {
+  font-size: 13px;
+}
+
+.support-links a {
+  color: #1976d2;
+  text-decoration: none;
+}
+
+.support-links a:hover {
+  text-decoration: underline;
+}
+
+.support-links .dot {
+  color: #ccc;
+  margin: 0 8px;
+}
