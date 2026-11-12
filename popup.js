@@ -123,7 +123,8 @@ function createGroup(title, rows, results, className) {
     return sum + (Number.isNaN(amount) ? 0 : amount);
   }, 0);
 
-  const currency = results.currency || '$';
+  // currency 为空字符串表示无货币单位（盐粒数字），只有 undefined 才回退到 '$'。
+  const currency = results.currency === undefined ? '$' : results.currency;
   // 盐粒模式下单位后置（如「合计：-1779 盐粒」），货币符号前置。
   const totalText = currency === ''
     ? `${formatAmount(total, '')} 盐粒`

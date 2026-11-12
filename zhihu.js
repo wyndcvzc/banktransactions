@@ -28,7 +28,7 @@ const rows = Array.from(items).map((item) => {
 
   return {
     '日期': date,
-    '金额': amountString,
+    '盐粒': amountString,
     '分类': isIncome ? '收入' : '提现',
     '说明': description,
   };
