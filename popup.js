@@ -61,24 +61,17 @@ function setResults(results) {
   renderTransactions(resultsElement, results);
 }
 
-// 把交易按金额正负分组渲染：收入为正、支出为负。
+// 只展示收入（正数盐粒），提现 / 支出记录不显示。
 function renderTransactions(container, results) {
   const income = [];
-  const expense = [];
   results.rows.forEach((row) => {
     const amount = parseAmount(row['盐粒']);
-    if (Number.isNaN(amount)) {
-      return;
-    }
-    if (amount >= 0) {
+    if (!Number.isNaN(amount) && amount >= 0) {
       income.push(row);
-    } else {
-      expense.push(row);
     }
   });
 
   container.appendChild(createCopyButton(results));
-  container.appendChild(createGroup('支出', expense, results, 'expense'));
   container.appendChild(createGroup('收入', income, results, 'income'));
 }
 
