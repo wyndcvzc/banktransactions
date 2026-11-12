@@ -47,13 +47,13 @@ button {
   font-size: 14px;
 }
 
-.group.positive h3,
-.group.positive .total {
+.group.expense h3,
+.group.expense .total {
   color: #c62828;
 }
 
-.group.negative h3,
-.group.negative .total {
+.group.income h3,
+.group.income .total {
   color: #2e7d32;
 }
 

@@ -61,27 +61,25 @@ function setResults(results) {
   renderTransactions(resultsElement, results);
 }
 
-// 把交易按 Amount 正负分成支出 / 收入两组渲染。
+// 把交易按金额正负分组渲染：收入为正、支出为负。
 function renderTransactions(container, results) {
-  // Split rows into positive/negative groups by the sign of Amount.
-  // Convention (see README): positive = charge/payment (支出), negative = refund/income (收入).
-  const positive = [];
-  const negative = [];
+  const income = [];
+  const expense = [];
   results.rows.forEach((row) => {
     const amount = parseAmount(row['金额']);
     if (Number.isNaN(amount)) {
       return;
     }
     if (amount >= 0) {
-      positive.push(row);
+      income.push(row);
     } else {
-      negative.push(row);
+      expense.push(row);
     }
   });
 
   container.appendChild(createCopyButton(results));
-  container.appendChild(createGroup('支出', positive, results, 'positive'));
-  container.appendChild(createGroup('收入', negative, results, 'negative'));
+  container.appendChild(createGroup('支出', expense, results, 'expense'));
+  container.appendChild(createGroup('收入', income, results, 'income'));
 }
 
 // Parse an Amount cell into a number, tolerating $, commas and signs.
@@ -118,7 +116,7 @@ function createCopyButton(results) {
 // title: string
 // rows: [Row]
 // results: { headers: [string], rows: [Row] }
-// className: 'positive' | 'negative'
+// className: 'expense' | 'income'
 function createGroup(title, rows, results, className) {
   const section = document.createElement('div');
   section.className = `group ${className}`;

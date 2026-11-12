@@ -19,11 +19,11 @@ const rows = Array.from(items).map((item) => {
   // Income entries carry the --income modifier class; everything else is a withdrawal.
   const isIncome = amountDiv?.classList.contains('BalanceTransactionList-Item-Amount--income') ?? false;
 
-  // Amounts are shown in 盐粒 (100 盐粒 = ¥1). Convert to yuan and normalize to
-  // the extension convention: positive = charge/payment (支出), negative = income (收入).
+  // 金额单位换算：盐粒 → 元（100 盐粒 = ¥1）。
+  // 符号约定：收入为正，提现 / 支出为负。
   const raw = parseFloat((amountDiv?.textContent ?? '').replace(/[^\d.]/g, '')) || 0;
   const yuan = raw / 100;
-  const amount = isIncome ? -yuan : yuan;
+  const amount = isIncome ? yuan : -yuan;
   const amountString = String(Number(amount.toFixed(2)));
 
   const date = timeElement?.getAttribute('datetime')?.substring(0, 10) ?? '';
