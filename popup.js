@@ -150,7 +150,10 @@ function createGroup(title, rows, results, className) {
 
 function formatAmount(value, currency = '$') {
   const sign = value < 0 ? '-' : '';
-  return `${sign}${currency}${Math.abs(value).toFixed(2)}`;
+  const abs = Math.abs(value);
+  // 整数不带小数位（盐粒金额是整数），小数最多保留两位。
+  const text = Number.isInteger(abs) ? String(abs) : String(Number(abs.toFixed(2)));
+  return `${sign}${currency}${text}`;
 }
 
 // rows: [Row]

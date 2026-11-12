@@ -16,7 +16,7 @@
     "service_worker": "background.js"
   },
   "manifest_version": 3,
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "知乎盐粒记账：余额页盐粒旁直接显示折合人民币，交易明细一键导出 CSV",
   "permissions": [
     "activeTab",
