@@ -66,7 +66,7 @@ function renderTransactions(container, results) {
   const income = [];
   const expense = [];
   results.rows.forEach((row) => {
-    const amount = parseAmount(row['金额']);
+    const amount = parseAmount(row['盐粒']);
     if (Number.isNaN(amount)) {
       return;
     }
@@ -126,14 +126,18 @@ function createGroup(title, rows, results, className) {
   section.appendChild(heading);
 
     const total = rows.reduce((sum, row) => {
-    const amount = parseAmount(row['金额']);
+    const amount = parseAmount(row['盐粒']);
     return sum + (Number.isNaN(amount) ? 0 : amount);
   }, 0);
 
   const currency = results.currency || '$';
+  // 盐粒模式下单位后置（如「合计：-1779 盐粒」），货币符号前置。
+  const totalText = currency === ''
+    ? `${formatAmount(total, '')} 盐粒`
+    : formatAmount(total, currency);
   const totalElement = document.createElement('div');
   totalElement.className = 'total';
-  totalElement.appendChild(document.createTextNode(`合计：${formatAmount(total, currency)}`));
+  totalElement.appendChild(document.createTextNode(`合计：${totalText}`));
   section.appendChild(totalElement);
 
   if (rows.length === 0) {
