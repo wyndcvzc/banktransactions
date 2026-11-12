@@ -1,21 +1,15 @@
-// 知乎余额面板：在盐粒 / 知乎币 / 直播盐币的数字后面直接标注折合人民币。
+// 知乎余额面板：只在盐粒的数字后面标注折合人民币。
 // 作为 content script 常驻注入；知乎是 SPA，靠 MutationObserver 在面板渲染/切换后补标注。
 (() => {
   const RATES_KEY = 'zhihuRates';
   const MARKER = 'data-bt-yuan';
 
-  // 1 单位虚拟币 = 多少人民币。账户余额本身就是 ¥，不标注。
-  // 知乎币 1:1；盐粒 100:1（官方提现比例）；直播盐币按 20 盐币 = ¥1 估算（提现口径）。
+  // 1 盐粒 = 多少人民币。官方提现比例 100 盐粒 = ¥1。
   const DEFAULT_RATES = {
-    zhihuCoin: 1,
     salt: 0.01,
-    liveSalt: 0.05,
   };
 
-  // 顺序有讲究：'直播盐币' 不命中 /盐粒/，'盐粒' 也不命中 /盐币/，互不干扰。
   const TYPES = [
-    { key: 'zhihuCoin', label: /知乎币/, unit: '知乎币' },
-    { key: 'liveSalt', label: /盐币/, unit: '盐币' },
     { key: 'salt', label: /盐粒/, unit: '盐粒' },
   ];
 
@@ -103,6 +97,9 @@
       }
       const type = TYPES.find((candidate) => candidate.label.test(labelElement.textContent));
       if (!type) {
+        // 非盐粒区块：摘掉旧版本可能留下的标注。
+        const stale = section.querySelectorAll(`[${MARKER}]`);
+        stale.forEach((node) => node.remove());
         return;
       }
       const numberElement = section.querySelector('.BalanceDashboard-Currency-Number');

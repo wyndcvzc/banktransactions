@@ -16,8 +16,8 @@
     "service_worker": "background.js"
   },
   "manifest_version": 3,
-  "version": "1.0.0",
-  "description": "知乎盐粒记账：余额页直接显示折合人民币（盐粒/知乎币/直播盐币），交易明细一键导出 CSV",
+  "version": "1.0.1",
+  "description": "知乎盐粒记账：余额页盐粒旁直接显示折合人民币，交易明细一键导出 CSV",
   "permissions": ["activeTab", "scripting", "tabs", "sidePanel"],
   "host_permissions": [
     "https://*.zhihu.com/*"
