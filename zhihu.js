@@ -2,10 +2,10 @@
 // 余额面板的折合人民币直接在页面上标注，见 zhihu-inline.js。
 
 const COLUMNS = [
-  'Date',
-  'Amount',
-  'Category',
-  'Description',
+  '日期',
+  '金额',
+  '分类',
+  '说明',
 ];
 
 const items = document.querySelectorAll('.BalanceTransactionList-Item');
@@ -29,10 +29,10 @@ const rows = Array.from(items).map((item) => {
   const date = timeElement?.getAttribute('datetime')?.substring(0, 10) ?? '';
 
   return {
-    'Date': date,
-    'Amount': amountString,
-    'Category': isIncome ? '收入' : '提现',
-    'Description': description,
+    '日期': date,
+    '金额': amountString,
+    '分类': isIncome ? '收入' : '提现',
+    '说明': description,
   };
 });
 

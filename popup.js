@@ -16,7 +16,7 @@ function notFound(url, options) {
   const notFound = document.getElementById('notfound');
   if (notFound) {
     notFound.style.display = 'block';
-    notFound.innerHTML = `URL not recognized: ${url}. Must be one of {${options.join(', ')}}`;
+    notFound.innerHTML = `未识别的页面地址：${url}。请打开知乎盐粒明细页再试。`;
   }
 }
 
@@ -68,7 +68,7 @@ function renderTransactions(container, results) {
   const positive = [];
   const negative = [];
   results.rows.forEach((row) => {
-    const amount = parseAmount(row['Amount']);
+    const amount = parseAmount(row['金额']);
     if (Number.isNaN(amount)) {
       return;
     }
@@ -80,8 +80,8 @@ function renderTransactions(container, results) {
   });
 
   container.appendChild(createCopyButton(results));
-  container.appendChild(createGroup('支出 · Expense（正数 / Positive）', positive, results, 'positive'));
-  container.appendChild(createGroup('收入 · Income（负数 / Negative）', negative, results, 'negative'));
+  container.appendChild(createGroup('支出', positive, results, 'positive'));
+  container.appendChild(createGroup('收入', negative, results, 'negative'));
 }
 
 // Parse an Amount cell into a number, tolerating $, commas and signs.
@@ -94,7 +94,7 @@ function parseAmount(value) {
 
 function createCopyButton(results) {
   const button = document.createElement('button');
-  button.appendChild(document.createTextNode('Copy as CSV'));
+  button.appendChild(document.createTextNode('复制 CSV'));
   button.addEventListener('click', () => {
     // Escape a cell for CSV: wrap in quotes if it contains comma/quote/newline.
     const escapeCell = (value) => {
@@ -127,8 +127,8 @@ function createGroup(title, rows, results, className) {
   heading.appendChild(document.createTextNode(`${title}（${rows.length} 笔）`));
   section.appendChild(heading);
 
-  const total = rows.reduce((sum, row) => {
-    const amount = parseAmount(row['Amount']);
+    const total = rows.reduce((sum, row) => {
+    const amount = parseAmount(row['金额']);
     return sum + (Number.isNaN(amount) ? 0 : amount);
   }, 0);
 
@@ -166,7 +166,7 @@ function createTable(rows, results) {
     tableHeaders.appendChild(headerElement);
   });
   const deleteHeader = document.createElement('th');
-  deleteHeader.appendChild(document.createTextNode('Delete Row'));
+  deleteHeader.appendChild(document.createTextNode('删除'));
   tableHeaders.appendChild(deleteHeader);
   table.appendChild(tableHeaders);
 
@@ -175,7 +175,7 @@ function createTable(rows, results) {
     results.headers.forEach((header) => {
       const dataElement = document.createElement('td');
       dataElement.appendChild(document.createTextNode(row[header]));
-      if (header === 'Description') {
+      if (header === '说明') {
         dataElement.title = row[header];
       }
       rowElement.appendChild(dataElement);
@@ -222,7 +222,7 @@ function init() {
     (tabs) => {
       const tab = tabs[0];
       if (!tab || !tab.url) {
-        showError('No active tab found.');
+        showError('没有找到活动标签页。');
         return;
       }
       let url;
